@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Music Player</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #a29bfe;
+      --dark: #2d3436;
+      --light: #f5f6fa;
+      --gray: #dfe6e9;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-weight: 600;
+      font-size: 24px;
+    }
+    
+    .player-container {
+      padding: 20px;
+    }
+    
+    .now-playing {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      background: var(--gray);
+      padding: 15px;
+      border-radius: 12px;
+    }
+    
+    .album-art {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      background-color: #ddd;
+      margin-right: 15px;
+      overflow: hidden;
+    }
+    
+    .album-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .song-info h3 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    
+    .song-info p {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    audio {
+      width: 100%;
+      margin: 15px 0;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .control-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .control-btn:hover {
+      transform: scale(1.05);
+      background: var(--secondary);
+    }
+    
+    .control-btn i {
+      font-size: 20px;
+    }
+    
+    .search-container {
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .search-bar {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 2px solid var(--gray);
+      border-radius: 30px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+    
+    .search-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .search-btn:hover {
+      background: var(--secondary);
+    }
+    
+    .file-upload {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    
+    .upload-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .upload-btn:hover {
+      background: var(--secondary);
+    }
+    
+    .upload-btn i {
+      font-size: 16px;
+    }
+    
+    #file-input {
+      display: none;
+    }
+    
+    .autocomplete {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--gray);
+      border-radius: 0 0 8px 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    
+    .autocomplete-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .autocomplete-item:hover {
+      background: var(--gray);
+    }
+    
+    .results-container {
+      margin-top: 20px;
+    }
+    
+    .results-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .tab {
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .song-list {
+      list-style: none;
+    }
+    
+    .song-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .song-item:hover {
+      background: var(--gray);
+    }
+    
+    .song-item.active {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .song-item .play-icon {
+      margin-right: 15px;
+      color: var(--primary);
+    }
+    
+    .song-item.active .play-icon {
+      color: white;
+    }
+    
+    .song-details {
+      flex: 1;
+      min-width: 0; /* Prevent overflow */
+    }
+    
+    .song-title {
+      font-weight: 500;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .song-artist {
+      font-size: 13px;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .song-item.active .song-artist {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .song-duration {
+      font-size: 14px;
+      color: #666;
+      margin: 0 10px;
+    }
+    
+    .song-item.active .song-duration {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .song-source {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: #eee;
+      margin-left: 10px;
+    }
+    
+    .song-item.active .song-source {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .song-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: 10px;
+    }
+    
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .song-item.active .action-btn {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .action-btn:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    
+    .song-item.active .action-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    
+    /* Share modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .modal-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    
+    .share-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .share-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    .share-option:hover {
+      background: var(--gray);
+    }
+    
+    .share-icon {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    
+    .share-label {
+      font-size: 12px;
+    }
+    
+    .share-link {
+      margin-top: 15px;
+      display: flex;
+    }
+    
+    .share-link input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--gray);
+      border-radius: 4px 0 0 4px;
+    }
+    
+    .copy-link {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0 12px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        border-radius: 0;
+      }
+      
+      .controls {
+        gap: 10px;
+      }
+      
+      .control-btn {
+        width: 45px;
+        height: 45px;
+      }
+      
+      .song-actions {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 5px;
+        border-radius: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .song-item.active .song-actions {
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Universal Music Player</h1>
+    </header>
+    
+    <div class="player-container">
+      <div class="now-playing">
+        <div class="album-art">
+          <img id="album-art" src="" alt="Album Art">
+        </div>
+        <div class="song-info">
+          <h3 id="current-song">No song selected</h3>
+          <p id="current-artist"></p>
+        </div>
+      </div>
+      
+      <audio id="music-player" controls></audio>
+      
+      <div class="controls">
+        <button class="control-btn" id="prev-btn"><i class="fas fa-step-backward"></i></button>
+        <button class="control-btn" id="play-btn"><i class="fas fa-play"></i></button>
+        <button class="control-btn" id="next-btn"><i class="fas fa-step-forward"></i></button>
+      </div>
+      
+      <div class="file-upload">
+        <button class="upload-btn" id="upload-btn">
+          <i class="fas fa-upload"></i>
+          <span id="upload-text">Upload Music</span>
+        </button>
+        <input type="file" id="file-input" accept="audio/*" multiple>
+      </div>
+      
+      <div class="search-container">
+        <div class="search-bar">
+          <input type="text" class="search-input" id="search-input" placeholder="Search for songs, artists...">
+          <button class="search-btn" id="search-btn">Search</button>
+        </div>
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      
+      <div class="results-container">
+        <h3 class="results-title">
+          <span>Music Library</span>
+          <div class="tabs">
+            <div class="tab active" data-tab="all">All</div>
+            <div class="tab" data-tab="local">Local</div>
+            <div class="tab" data-tab="online">Online</div>
+          </div>
+        </h3>
+        <div id="search-results">
+          <div class="no-results">
+            <p>Upload music or search online to get started</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal" id="share-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Share Song</h3>
+        <button class="close-modal" id="close-modal">&times;</button>
+      </div>
+      <div id="share-song-info"></div>
+      <div class="share-options">
+        <div class="share-option" id="share-facebook">
+          <div class="share-icon"><i class="fab fa-facebook"></i></div>
+          <div class="share-label">Facebook</div>
+        </div>
+        <div class="share-option" id="share-twitter">
+          <div class="share-icon"><i class="fab fa-twitter"></i></div>
+          <div class="share-label">Twitter</div>
+        </div>
+        <div class="share-option" id="share-whatsapp">
+          <div class="share-icon"><i class="fab fa-whatsapp"></i></div>
+          <div class="share-label">WhatsApp</div>
+        </div>
+        <div class="share-option" id="share-telegram">
+          <div class="share-icon"><i class="fab fa-telegram"></i></div>
+          <div class="share-label">Telegram</div>
+        </div>
+      </div>
+      <div class="share-link">
+        <input type="text" id="share-url" readonly>
+        <button class="copy-link" id="copy-link">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const musicPlayer = document.getElementById('music-player');
+      const searchInput = document.getElementById('search-input');
+      const searchBtn = document.getElementById('search-btn');
+      const autocomplete = document.getElementById('autocomplete');
+      const searchResults = document.getElementById('search-results');
+      const currentSongElement = document.getElementById('current-song');
+      const currentArtistElement = document.getElementById('current-artist');
+      const albumArtElement = document.getElementById('album-art');
+      const playBtn = document.getElementById('play-btn');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const uploadBtn = document.getElementById('upload-btn');
+      const uploadText = document.getElementById('upload-text');
+      const fileInput = document.getElementById('file-input');
+      const tabs = document.querySelectorAll('.tab');
+      const shareModal = document.getElementById('share-modal');
+      const closeModal = document.getElementById('close-modal');
+      const shareUrl = document.getElementById('share-url');
+      const copyLink = document.getElementById('copy-link');
+      const shareSongInfo = document.getElementById('share-song-info');
+      
+      let currentSongIndex = -1;
+      let searchResultsData = [];
+      let localSongs = [];
+      let debounceTimer;
+      let activeTab = 'all';
+      let currentShareSong = null;
+      
+      // Set appropriate upload text based on device
+      if (isMobileDevice()) {
+        uploadText.textContent = 'Browse Device Music';
+      }
+      
+      // Play a song
+      function playSong(song) {
+        if (!song) return;
+        
+        currentSongElement.textContent = song.title || 'Unknown Track';
+        currentArtistElement.textContent = song.artist || 'Unknown Artist';
+        
+        if (song.artwork) {
+          albumArtElement.src = song.artwork;
+        } else if (song.artworkUrl100 || song.artworkUrl60) {
+          albumArtElement.src = song.artworkUrl100 || song.artworkUrl60;
+        } else {
+          albumArtElement.src = 'https://via.placeholder.com/100';
+        }
+        
+        if (song.file) {
+          // For local files
+          const objectUrl = URL.createObjectURL(song.file);
+          musicPlayer.src = objectUrl;
+        } else {
+          // For online files
+          musicPlayer.src = song.previewUrl;
+        }
+        
+        musicPlayer.play();
+        
+        // Update active state in results
+        updateActiveSongInResults();
+        
+        // Change play button to pause
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+      
+      // Update active song in results list
+      function updateActiveSongInResults() {
+        document.querySelectorAll('.song-item').forEach((item, index) => {
+          if (index === currentSongIndex) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+      }
+      
+      // Search for songs using iTunes API
+      function searchOnlineSongs(query) {
+        if (!query.trim()) {
+          updateResultsDisplay();
+          return;
+        }
+        
+        fetch(https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=20)
+          .then(response => response.json())
+          .then(data => {
+            const onlineResults = data.results || [];
+            
+            // Map iTunes results to our format
+            searchResultsData = onlineResults.map(song => ({
+              type: 'online',
+              title: song.trackName,
+              artist: song.artistName,
+              duration: song.trackTimeMillis ? 
+                new Date(song.trackTimeMillis).toISOString().substr(14, 5) : '--:--',
+              previewUrl: song.previewUrl,
+              artworkUrl100: song.artworkUrl100,
+              artworkUrl60: song.artworkUrl60,
+              trackUrl: song.trackViewUrl, // iTunes store URL
+              collectionName: song.collectionName
+            }));
+            
+            updateResultsDisplay();
+          })
+          .catch(error => {
+            console.error('Error fetching search results:', error);
+            searchResults.innerHTML = '<div class="no-results"><p>Error loading online results. Please try again.</p></div>';
+          });
+      }
+      
+      // Handle file uploads
+      function handleFileUpload(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          
+          // Only process audio files
+          if (!file.type.startsWith('audio/')) continue;
+          
+          // Create a song object
+          const song = {
+            type: 'local',
+            file: file,
+            title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+            artist: 'Local Artist',
+            duration: '--:--'
+          };
+          
+          // Try to extract metadata
+          if (window.jsmediatags) {
+            new jsmediatags.Reader(file)
+              .setTagsToRead(['title', 'artist'])
+              .read({
+                onSuccess: function(tag) {
+                  if (tag.tags.title) song.title = tag.tags.title;
+                  if (tag.tags.artist) song.artist = tag.tags.artist;
+                  
+                  // Check if we have album art
+                  if (tag.tags.picture) {
+                    const base64String = arrayBufferToBase64(tag.tags.picture.data);
+                    song.artwork = data:${tag.tags.picture.format};base64,${base64String};
+                  }
+                  
+                  // Update the display if this song is in view
+                  updateResultsDisplay();
+                },
+                onError: function(error) {
+                  console.log('Error reading media tags:', error);
+                }
+              });
+          }
+          
+          localSongs.push(song);
+        }
+        
+        updateResultsDisplay();
+      }
+      
+      // Helper function to convert array buffer to base64
+      function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+      }
+      
+      // Update the results display based on active tab
+      function updateResultsDisplay() {
+        let songsToDisplay = [];
+        
+        switch (activeTab) {
+          case 'local':
+            songsToDisplay = localSongs;
+            break;
+          case 'online':
+            songsToDisplay = searchResultsData;
+            break;
+          case 'all':
+          default:
+            songsToDisplay = [...localSongs, ...searchResultsData];
+            break;
+        }
+        
+        if (songsToDisplay.length === 0) {
+          let message = '';
+          switch (activeTab) {
+            case 'local':
+              message = isMobileDevice() ? 
+                'No local music found. Use the browse button to access your device music.' : 
+                'No local music uploaded. Use the upload button to add music.';
+              break;
+            case 'online':
+              message = 'No online results. Search for music to find online tracks.';
+              break;
+            default:
+              message = isMobileDevice() ? 
+                'No music found. Browse your device music or search online.' : 
+                'No music found. Upload local files or search online.';
+              break;
+          }
+          searchResults.innerHTML = <div class="no-results"><p>${message}</p></div>;
+          return;
+        }
+        
+        let resultsHTML = '<ul class="song-list">';
+        
+        songsToDisplay.forEach((song, index) => {
+          // Different actions for local vs online songs
+          const actionButtons = song.type === 'online' ? `
+            <div class="song-actions">
+              <button class="action-btn listen-btn" title="Listen" data-index="${index}">
+                <i class="fas fa-headphones"></i>
+              </button>
+              <button class="action-btn download-btn" title="Download" data-index="${index}">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="action-btn share-btn" title="Share" data-index="${index}">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+          ` : `
+            <div class="song-actions">
+              <button class="action-btn listen-btn" title="Listen" data-index="${index}">
+                <i class="fas fa-headphones"></i>
+              </button>
+              <button class="action-btn share-btn" title="Share" data-index="${index}">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+          `;
+          
+          resultsHTML += `
+            <li class="song-item" data-index="${index}">
+              <div class="play-icon"><i class="fas fa-music"></i></div>
+              <div class="song-details">
+                <div class="song-title">${song.title || 'Unknown Track'}</div>
+                <div class="song-artist">${song.artist || 'Unknown Artist'}</div>
+              </div>
+              <div class="song-duration">${song.duration || '--:--'}</div>
+              <div class="song-source">${song.type}</div>
+              ${actionButtons}
+            </li>
+          `;
+        });
+        
+        resultsHTML += '</ul>';
+        searchResults.innerHTML = resultsHTML;
+        
+        // Set up click handlers for the song items
+        document.querySelectorAll('.song-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            // Don't trigger if clicking on action buttons
+            if (e.target.closest('.song-actions')) return;
+            
+            const index = parseInt(this.getAttribute('data-index'));
+            playSongFromDisplay(index);
+          });
+        });
+        
+        // Set up action buttons
+        document.querySelectorAll('.listen-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.getAttribute('data-index'));
+            playSongFromDisplay(index);
+          });
+        });
+        
+        document.querySelectorAll('.download-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.getAttribute('data-index'));
+            downloadSong(index);
+          });
+        });
+        
+        document.querySelectorAll('.share-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const index = parseInt(this.getAttribute('data-index'));
+            showShareModal(index);
+          });
+        });
+        
+        // Update active song highlight if needed
+        updateActiveSongInResults();
+      }
+      
+      // Play song from the displayed list
+      function playSongFromDisplay(index) {
+        // Determine which array to use based on active tab
+        let songsArray;
+        switch (activeTab) {
+          case 'local':
+            songsArray = localSongs;
+            break;
+          case 'online':
+            songsArray = searchResultsData;
+            break;
+          default:
+            // For 'all' tab, we need to determine if it's local or online
+            if (index < localSongs.length) {
+              songsArray = localSongs;
+              currentSongIndex = index;
+            } else {
+              songsArray = searchResultsData;
+              currentSongIndex = index - localSongs.length;
+            }
+            break;
+        }
+        
+        if (songsArray === localSongs) {
+          currentSongIndex = index;
+        } else if (songsArray === searchResultsData) {
+          currentSongIndex = index;
+        }
+        
+        playSong(songsArray[currentSongIndex]);
+      }
+      
+      // Download song (for online songs)
+      function downloadSong(index) {
+        const song = searchResultsData[index];
+        if (!song || !song.trackUrl) return;
+        
+        // In a real app, you would need proper download logic
+        // For demo, we'll just open the iTunes store page
+        window.open(song.trackUrl, '_blank');
+        
+        // Alternatively, you could try to download the preview (though this may have limitations)
+        // const link = document.createElement('a');
+        // link.href = song.previewUrl;
+        // link.download = ${song.title || 'song'}.m4a;
+        // document.body.appendChild(link);
+        // link.click();
+        // document.body.removeChild(link);
+      }
+      
+      // Show share modal
+      function showShareModal(index) {
+        let song;
+        
+        // Determine which song to share based on active tab
+        switch (activeTab) {
+          case 'local':
+            song = localSongs[index];
+            break;
+          case 'online':
+            song = searchResultsData[index];
+            break;
+          default:
+            // For 'all' tab, determine if local or online
+            if (index < localSongs.length) {
+              song = localSongs[index];
+            } else {
+              song = searchResultsData[index - localSongs.length];
+            }
+            break;
+        }
+        
+        if (!song) return;
+        
+        currentShareSong = song;
+        
+        // Update share modal content
+        shareSongInfo.innerHTML = `
+          <p><strong>${song.title || 'Unknown Track'}</strong></p>
+          <p>${song.artist || 'Unknown Artist'}</p>
+        `;
+        
+        // Set share URL (in a real app, this would be your app's shareable link)
+        const shareText = Check out "${song.title}" by ${song.artist};
+        let url = '';
+        
+        if (song.type === 'online' && song.trackUrl) {
+          url = song.trackUrl;
+        } else {
+          // For local files, we can't share the actual file, so just share text
+          url = window.location.href;
+        }
+        
+        shareUrl.value = url;
+        
+        // Open modal
+        shareModal.style.display = 'flex';
+      }
+      
+      // Setup share buttons
+      function setupShareButtons() {
+        document.getElementById('share-facebook').addEventListener('click', () => {
+          shareToSocial('facebook');
+        });
+        
+        document.getElementById('share-twitter').addEventListener('click', () => {
+          shareToSocial('twitter');
+        });
+        
+        document.getElementById('share-whatsapp').addEventListener('click', () => {
+          shareToSocial('whatsapp');
+        });
+        
+        document.getElementById('share-telegram').addEventListener('click', () => {
+          shareToSocial('telegram');
+        });
+      }
+      
+      // Share to social media
+      function shareToSocial(platform) {
+        if (!currentShareSong) return;
+        
+        const shareText = Check out "${currentShareSong.title}" by ${currentShareSong.artist};
+        const url = shareUrl.value;
+        
+        let shareUrlString = '';
+        
+        switch (platform) {
+          case 'facebook':
+            shareUrlString = https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)};
+            break;
+          case 'twitter':
+            shareUrlString = https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)};
+            break;
+          case 'whatsapp':
+            shareUrlString = https://wa.me/?text=${encodeURIComponent(${shareText} ${url})};
+            break;
+          case 'telegram':
+            shareUrlString = https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)};
+            break;
+        }
+        
+        window.open(shareUrlString, '_blank', 'width=600,height=400');
+      }
+      
+      // Autocomplete suggestions
+      function fetchAutocompleteSuggestions(query) {
+        if (!query.trim()) {
+          autocomplete.style.display = 'none';
+          return;
+        }
+        
+        // In a real app, you would fetch actual suggestions from an API
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          // This is just a simulation
+          const mockSuggestions = [
+            ${query} songs,
+            ${query} artist,
+            ${query} album,
+            Best of ${query}
+          ];
+          
+          let suggestionsHTML = '';
+          mockSuggestions.forEach(suggestion => {
+            suggestionsHTML += <div class="autocomplete-item">${suggestion}</div>;
+          });
+          
+          autocomplete.innerHTML = suggestionsHTML;
+          autocomplete.style.display = 'block';
+          
+          // Set up click handlers for autocomplete items
+          document.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+              searchInput.value = this.textContent;
+              autocomplete.style.display = 'none';
+              searchOnlineSongs(this.textContent);
+            });
+          });
+        }, 300);
+      }
+      
+      // Check if device is mobile
+      function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      }
+      
+      // Initialize device music access on mobile
+      function initDeviceMusicAccess() {
+        if (isMobileDevice()) {
+          // This is just a placeholder - actual implementation would use device-specific APIs
+          uploadText.textContent = 'Browse Device Music';
+          
+          // For demo purposes, we'll simulate finding some music
+          // In a real app, you would use the device's file access APIs
+          setTimeout(() => {
+            const mockDeviceSongs = [
+              { type: 'local', title: 'Device Song 1', artist: 'Mobile Artist', duration: '3:45' },
+              { type: 'local', title: 'Device Song 2', artist: 'Mobile Artist', duration: '4:12' }
+            ];
+            
+            localSongs = [...localSongs, ...mockDeviceSongs];
+            updateResultsDisplay();
+          }, 1000);
+        }
+      }
+      
+      // Event listeners
+      searchBtn.addEventListener('click', () => {
+        searchOnlineSongs(searchInput.value);
+        autocomplete.style.display = 'none';
+      });
+      
+      searchInput.addEventListener('input', () => {
+        fetchAutocompleteSuggestions(searchInput.value);
+      });
+      
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchOnlineSongs(searchInput.value);
+          autocomplete.style.display = 'none';
+        }
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!autocomplete.contains(e.target) && e.target !== searchInput) {
+          autocomplete.style.display = 'none';
+        }
+      });
+      
+      uploadBtn.addEventListener('click', () => {
+        if (isMobileDevice()) {
+          // On mobile, we would typically use a different API to access music
+          // For this demo, we'll just trigger the file input
+          fileInput.click();
+        } else {
+          fileInput.click();
+        }
+      });
+      
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          handleFileUpload(e.target.files);
+        }
+        fileInput.value = ''; // Reset to allow selecting same files again
+      });
+      
+      // Tab switching
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          activeTab = this.getAttribute('data-tab');
+          updateResultsDisplay();
+        });
+      });
+      
+      playBtn.addEventListener('click', () => {
+        if (musicPlayer.paused) {
+          if (musicPlayer.src) {
+            musicPlayer.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          } else if (localSongs.length > 0 || searchResultsData.length > 0) {
+            // If no song is selected but there are results, play the first one
+            currentSongIndex = 0;
+            const songsArray = activeTab === 'local' ? localSongs : 
+                             activeTab === 'online' ? searchResultsData : 
+                             [...localSongs, ...searchResultsData];
+            if (songsArray.length > 0) {
+              playSong(songsArray[0]);
+            }
+          }
+        } else {
+          musicPlayer.pause();
+          playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+      });
+      
+      prevBtn.addEventListener('click', () => {
+        const songsArray = activeTab === 'local' ? localSongs : 
+                         activeTab === 'online' ? searchResultsData : 
+                         [...localSongs, ...searchResultsData];
+        
+        if (songsArray.length === 0) return;
+        
+        currentSongIndex = (currentSongIndex - 1 + songsArray.length) % songsArray.length;
+        playSong(songsArray[currentSongIndex]);
+      });
+      
+      nextBtn.addEventListener('click', () => {
+        const songsArray = activeTab === 'local' ? localSongs : 
+                         activeTab === 'online' ? searchResultsData : 
+                         [...localSongs, ...searchResultsData];
+        
+        if (songsArray.length === 0) return;
+        
+        currentSongIndex = (currentSongIndex + 1) % songsArray.length;
+        playSong(songsArray[currentSongIndex]);
+      });
+      
+      musicPlayer.addEventListener('play', () => {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      });
+      
+      musicPlayer.addEventListener('pause', () => {
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+      });
+      
+      musicPlayer.addEventListener('ended', () => {
+        // Auto-play next song when current one ends
+        const songsArray = activeTab === 'local' ? localSongs : 
+                         activeTab === 'online' ? searchResultsData : 
+                         [...localSongs, ...searchResultsData];
+        
+        if (songsArray.length > 0) {
+          currentSongIndex = (currentSongIndex + 1) % songsArray.length;
+          playSong(songsArray[currentSongIndex]);
+        }
+      });
+      
+      // Share modal events
+      closeModal.addEventListener('click', () => {
+        shareModal.style.display = 'none';
+      });
+      
+      copyLink.addEventListener('click', () => {
+        shareUrl.select();
+        document.execCommand('copy');
+        
+        // Show copied feedback
+        const originalText = copyLink.textContent;
+        copyLink.textContent = 'Copied!';
+        setTimeout(() => {
+          copyLink.textContent = originalText;
+        }, 2000);
+      });
+      
+      // Close modal when clicking outside
+      shareModal.addEventListener('click', (e) => {
+        if (e.target === shareModal) {
+          shareModal.style.display = 'none';
+        }
+      });
+      
+      // Setup share buttons
+      setupShareButtons();
+      
+      // Load jsmediatags library for metadata reading
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.7/jsmediatags.min.js';
+      script.onload = initDeviceMusicAccess;
+      document.head.appendChild(script);
+    });
+  </script>
+</body>
+</html>
