@@ -669,7 +669,7 @@
           return;
         }
         
-        fetch(https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=20)
+        fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&media=music&limit=20`)
           .then(response => response.json())
           .then(data => {
             const onlineResults = data.results || [];
@@ -725,7 +725,7 @@
                   // Check if we have album art
                   if (tag.tags.picture) {
                     const base64String = arrayBufferToBase64(tag.tags.picture.data);
-                    song.artwork = data:${tag.tags.picture.format};base64,${base64String};
+                    song.artwork = `data:${tag.tags.picture.format};base64,${base64String}`;
                   }
                   
                   // Update the display if this song is in view
@@ -787,7 +787,7 @@
                 'No music found. Upload local files or search online.';
               break;
           }
-          searchResults.innerHTML = <div class="no-results"><p>${message}</p></div>;
+          searchResults.innerHTML = `<div class="no-results"><p>${message}</p></div>`;
           return;
         }
         
@@ -958,7 +958,7 @@
         `;
         
         // Set share URL (in a real app, this would be your app's shareable link)
-        const shareText = Check out "${song.title}" by ${song.artist};
+        const shareText = `Check out "${song.title}" by ${song.artist}`;
         let url = '';
         
         if (song.type === 'online' && song.trackUrl) {
@@ -997,23 +997,23 @@
       function shareToSocial(platform) {
         if (!currentShareSong) return;
         
-        const shareText = Check out "${currentShareSong.title}" by ${currentShareSong.artist};
+        const shareText = `Check out "${currentShareSong.title}" by ${currentShareSong.artist}`;
         const url = shareUrl.value;
         
         let shareUrlString = '';
         
         switch (platform) {
           case 'facebook':
-            shareUrlString = https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)};
+            shareUrlString = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
             break;
           case 'twitter':
-            shareUrlString = https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)};
+            shareUrlString = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
             break;
           case 'whatsapp':
-            shareUrlString = https://wa.me/?text=${encodeURIComponent(${shareText} ${url})};
+            shareUrlString = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${url}`)}`;
             break;
           case 'telegram':
-            shareUrlString = https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)};
+            shareUrlString = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)}`;
             break;
         }
         
@@ -1032,15 +1032,15 @@
         debounceTimer = setTimeout(() => {
           // This is just a simulation
           const mockSuggestions = [
-            ${query} songs,
-            ${query} artist,
-            ${query} album,
-            Best of ${query}
+            `${query} songs`,
+            `${query} artist`,
+            `${query} album`,
+            `Best of ${query}`
           ];
           
           let suggestionsHTML = '';
           mockSuggestions.forEach(suggestion => {
-            suggestionsHTML += <div class="autocomplete-item">${suggestion}</div>;
+            suggestionsHTML += `<div class="autocomplete-item">${suggestion}</div>`;
           });
           
           autocomplete.innerHTML = suggestionsHTML;
