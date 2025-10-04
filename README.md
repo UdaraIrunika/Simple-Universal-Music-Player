@@ -54,5 +54,14 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Screenshots
 
-<img width="1200" height="700" alt="Music Player Screenshot 1" src="https://via.placeholder.com/1200x700.png?text=Music+Player+Screenshot+1" />  
-<img width="1200" height="700" alt="Music Player Screenshot 2" src="https://via.placeholder.com/1200x700.png?text=Music+Player+Screenshot+2" />
+![WhatsApp Image 2025-10-03 at 15 45 06_9198ea3e](https://github.com/user-attachments/assets/6f9fad38-6fe3-471b-801b-179493970db4)
+<img width="920" height="716" alt="Screenshot 2025-10-04 155023" src="https://github.com/user-attachments/assets/d91085b1-38e6-423e-856f-6eb630df3a00" />
+
+## Testing Video
+
+https://github.com/user-attachments/assets/4bb34f20-24d1-43d6-8267-fa82e2bf636d
+
+
+
+
+
